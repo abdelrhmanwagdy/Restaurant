@@ -2,6 +2,8 @@ const express = require('express')
 const Restaurant = require('../../models/restaurant')
 const router = new express.Router()
 const passport = require('passport')
+const mongoose = require('mongoose')
+const ObjectId = mongoose.Types.ObjectId
 
 const addingRestaurantInfoValidator = require('../../utils/restaurant/addingRestaurantInfoValidator')
 const updatingRestaurantInfoValidator = require('../../utils/restaurant/updatingRestaurantInfoValidator')
@@ -35,6 +37,10 @@ router.post('/restaurant', passport.authenticate('jwt', { session: false }), asy
 // @return      Restaurant
 // @access      Public
 router.get('/restaurants/:id', async (req, res) => {
+    if (!ObjectId.isValid(req.params.id)) {
+        return res.status(400).send({ Error: "Incorrect Restaurant Id" })
+    }
+
     const _id = req.params.id
 
     try {
@@ -46,6 +52,7 @@ router.get('/restaurants/:id', async (req, res) => {
 
         res.send(restaurant)
     } catch (e) {
+        console.log(e);
         res.status(500).send()
     }
 })
@@ -56,7 +63,7 @@ router.get('/restaurants/:id', async (req, res) => {
 // @access      Public
 router.get('/restaurants', async (req, res) => {
 
-    const validation_errors = await validateInputs.infoValidatorForUpdateAndQueryOptions(req.params);
+    const validation_errors = validateInputs.infoValidatorForUpdateAndQueryOptions(req.query);
 
     if (validation_errors.length === 0) {
 
@@ -89,6 +96,10 @@ router.get('/restaurants', async (req, res) => {
 // @return       updated Resturant
 // @access      Private
 router.patch('/restaurants/:id', passport.authenticate('jwt', { session: false }), async (req, res) => {
+    if (!ObjectId.isValid(req.params.id)) {
+        return res.status(400).send({ Error: "Incorrect Restaurant Id" })
+    }
+
     const updates = Object.keys(req.body)
     const allowedUpdates = ['name', 'age', 'address']
     const isValidOperation = updates.every((update) => allowedUpdates.includes(update))
@@ -125,6 +136,9 @@ router.patch('/restaurants/:id', passport.authenticate('jwt', { session: false }
 // @return       Deleted Resturant
 // @access      Private
 router.delete('/restaurant/:id', passport.authenticate('jwt', { session: false }), async function (req, res) {
+    if (!ObjectId.isValid(req.params.id)) {
+        return res.status(400).send({ Error: "Incorrect Restaurant Id" })
+    }
     try {
         const restaurant = await Restaurant.findOneAndDelete({ _id: req.params.id, owner: req.user._id })
 

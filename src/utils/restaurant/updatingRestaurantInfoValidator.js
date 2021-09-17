@@ -20,9 +20,11 @@ module.exports = updatingRestaurantInfoValidator = async (updatingRestaurantInfo
 
     //validate inputs
     const validateUpdatingInfo = validateInputs.infoValidatorForUpdateAndQueryOptions(updatingRestaurantInfoValidator)
-    if(validateUpdatingInfo.length > 0){
+
+    if (validateUpdatingInfo.length > 0) {
         return_value.error = validateUpdatingInfo
     }
+
 
     return return_value.error
 
